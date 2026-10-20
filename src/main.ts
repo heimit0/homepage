@@ -70,7 +70,10 @@ function layout(content: string, mainClass: string): string {
 
 function renderHome() {
   document.title = site.domain
-  app.innerHTML = layout('', 'hero')
+  app.innerHTML = layout(
+    `<h1 class="splash">${escapeHtml(site.splash)}</h1>`,
+    'hero',
+  )
 }
 
 function renderBlog() {

@@ -7,6 +7,7 @@
   --accent: #b04a2f;
   --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
   --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display: 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -92,8 +93,20 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   padding: 4rem 0;
+}
+
+.splash {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  margin: 0;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .blurb {
