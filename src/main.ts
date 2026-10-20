@@ -1,11 +1,13 @@
 import './style.css'
 import { site } from './content'
 import { posts, getPost, formatDate } from './posts'
+import { galleryImages } from './gallery'
 
 type Route =
   | { name: 'home' }
   | { name: 'blog' }
   | { name: 'post'; slug: string }
+  | { name: 'gallery' }
   | { name: 'notfound' }
 
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -25,6 +27,9 @@ function escapeHtml(value: string): string {
 function parseRoute(pathname: string): Route {
   if (pathname === '/' || pathname === '') return { name: 'home' }
   if (pathname === '/blog' || pathname === '/blog/') return { name: 'blog' }
+  if (pathname === '/gallery' || pathname === '/gallery/') {
+    return { name: 'gallery' }
+  }
   const match = pathname.match(/^\/blog\/([^/]+)\/?$/)
   if (match) return { name: 'post', slug: decodeURIComponent(match[1]) }
   return { name: 'notfound' }
@@ -41,6 +46,9 @@ function layout(content: string, mainClass: string): string {
   const blogActive = location.pathname.startsWith('/blog')
     ? ' aria-current="page"'
     : ''
+  const galleryActive = location.pathname.startsWith('/gallery')
+    ? ' aria-current="page"'
+    : ''
 
   return `
     <div class="page">
@@ -48,6 +56,7 @@ function layout(content: string, mainClass: string): string {
         <a class="wordmark" href="/">${escapeHtml(site.domain)}</a>
         <nav class="site-nav" aria-label="Site">
           <a href="/blog"${blogActive}>Blog</a>
+          <a href="/gallery"${galleryActive}>Gallery</a>
         </nav>
       </header>
       <main class="${mainClass}">${content}</main>
@@ -61,13 +70,7 @@ function layout(content: string, mainClass: string): string {
 
 function renderHome() {
   document.title = site.domain
-  app.innerHTML = layout(
-    `
-      <h1 class="headline">${escapeHtml(site.headline)}</h1>
-      <p class="blurb">${escapeHtml(site.blurb)}</p>
-    `,
-    'hero',
-  )
+  app.innerHTML = layout('', 'hero')
 }
 
 function renderBlog() {
@@ -114,6 +117,30 @@ function renderPost(slug: string) {
   )
 }
 
+function renderGallery() {
+  document.title = `Gallery — ${site.domain}`
+  const items = galleryImages
+    .map(
+      (image) => `
+        <button class="gallery-item" type="button" data-src="${image.src}" aria-label="View ${escapeHtml(image.alt)}">
+          <img src="${image.src}" alt="${escapeHtml(image.alt)}" loading="lazy" />
+        </button>
+      `,
+    )
+    .join('')
+  app.innerHTML = layout(
+    `
+      <h1 class="page-title">Gallery</h1>
+      ${
+        items
+          ? `<div class="gallery">${items}</div>`
+          : '<p class="blurb">No images yet. Add files to <code>content/gallery/</code>.</p>'
+      }
+    `,
+    'content',
+  )
+}
+
 function renderNotFound() {
   document.title = `Not found — ${site.domain}`
   app.innerHTML = layout(
@@ -138,13 +165,52 @@ function render() {
     case 'post':
       renderPost(route.slug)
       break
+    case 'gallery':
+      renderGallery()
+      break
     default:
       renderNotFound()
   }
 }
 
-// Intercept same-origin link clicks for client-side navigation.
+// Lightbox overlay for the gallery.
+let lightbox: HTMLDivElement | null = null
+
+function openLightbox(src: string, alt: string) {
+  if (!lightbox) {
+    lightbox = document.createElement('div')
+    lightbox.className = 'lightbox'
+    lightbox.setAttribute('role', 'dialog')
+    lightbox.setAttribute('aria-modal', 'true')
+    lightbox.innerHTML = '<img src="" alt="" />'
+    document.body.appendChild(lightbox)
+  }
+  const image = lightbox.querySelector('img')!
+  image.src = src
+  image.alt = alt
+  lightbox.classList.add('open')
+  document.body.style.overflow = 'hidden'
+}
+
+function closeLightbox() {
+  if (!lightbox) return
+  lightbox.classList.remove('open')
+  document.body.style.overflow = ''
+}
+
 document.addEventListener('click', (event) => {
+  const galleryItem = (event.target as HTMLElement).closest('.gallery-item')
+  if (galleryItem) {
+    const src = galleryItem.getAttribute('data-src')
+    if (src) openLightbox(src, galleryItem.querySelector('img')?.alt ?? '')
+    return
+  }
+
+  if ((event.target as HTMLElement).closest('.lightbox')) {
+    closeLightbox()
+    return
+  }
+
   const anchor = (event.target as HTMLElement).closest('a')
   if (!anchor) return
   const href = anchor.getAttribute('href')
@@ -157,6 +223,10 @@ document.addEventListener('click', (event) => {
   history.pushState({}, '', url.pathname + url.search + url.hash)
   render()
   window.scrollTo(0, 0)
+})
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeLightbox()
 })
 
 window.addEventListener('popstate', render)
