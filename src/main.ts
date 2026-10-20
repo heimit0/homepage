@@ -68,12 +68,61 @@ function layout(content: string, mainClass: string): string {
   `
 }
 
+// Fonts the splash text cycles through on load. All are condensed/narrow
+// sans-serifs similar to Roboto Condensed, so the text keeps a consistent
+// width while it spins. Roboto Condensed is the intended default.
+const SPLASH_FONTS = [
+  "'Roboto Condensed', 'Arial Narrow', Arial, sans-serif",
+  "'Archivo Narrow', 'Arial Narrow', Arial, sans-serif",
+  "'PT Sans Narrow', 'Arial Narrow', Arial, sans-serif",
+  "'Barlow Condensed', 'Arial Narrow', Arial, sans-serif",
+  "'IBM Plex Sans Condensed', 'Arial Narrow', Arial, sans-serif",
+  "'Fira Sans Condensed', 'Arial Narrow', Arial, sans-serif",
+  "'Oswald', 'Arial Narrow', Arial, sans-serif",
+]
+
+let splashSpun = false
+
+// On first load, cycle the splash through the fonts (decelerating), then settle
+// on a random one. Reduced-motion users just get the random font, no spin.
+function spinSplashFont() {
+  const splash = document.querySelector<HTMLElement>('.splash')
+  if (!splash) return
+
+  const target = SPLASH_FONTS[Math.floor(Math.random() * SPLASH_FONTS.length)]
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    splash.style.fontFamily = target
+    return
+  }
+
+  const steps = 10
+  let step = 0
+
+  const tick = () => {
+    if (!splash.isConnected) return
+    splash.style.fontFamily = SPLASH_FONTS[step % SPLASH_FONTS.length]
+    step += 1
+    if (step >= steps) {
+      splash.style.fontFamily = target
+      return
+    }
+    setTimeout(tick, 60 + step * step * 5)
+  }
+
+  tick()
+}
+
 function renderHome() {
   document.title = site.domain
   app.innerHTML = layout(
     `<h1 class="splash">${escapeHtml(site.splash)}</h1>`,
     'hero',
   )
+  if (!splashSpun) {
+    splashSpun = true
+    spinSplashFont()
+  }
 }
 
 function renderBlog() {
