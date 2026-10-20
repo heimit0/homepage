@@ -1,0 +1,8 @@
+services:
+  homepage:
+    build: .
+    image: heimito-homepage
+    container_name: heimito-homepage
+    ports:
+      - "8081:80"
+    restart: unless-stopped
