@@ -1,7 +1,6 @@
 services:
   homepage:
-    build: .
-    image: heimito-homepage
+    image: ghcr.io/heimit0/homepage:latest
     container_name: heimito-homepage
     ports:
       - "8081:80"

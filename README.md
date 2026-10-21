@@ -19,11 +19,22 @@ npm run preview    # serve the production build locally
 
 ## Run with Docker
 
+The image is built and pushed to `ghcr.io/heimit0/homepage` by a GitHub
+Actions workflow on every push to `main` (see `.github/workflows/`). Pull and
+run it:
+
 ```sh
-docker compose up --build      # http://localhost:8081
+docker pull ghcr.io/heimit0/homepage:latest
+docker run --rm -p 8081:80 ghcr.io/heimit0/homepage:latest
 ```
 
-or without compose:
+or with compose:
+
+```sh
+docker compose up          # http://localhost:8081
+```
+
+To build locally instead of pulling:
 
 ```sh
 docker build -t heimito-homepage .
