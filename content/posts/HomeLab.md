@@ -5,4 +5,4 @@ description: Ever evolving HomeLab.
 ---
 
 
-# This post is under construction since there have been major changes to the networking behind the homelab
+This post is under construction since there have been major changes to the networking behind the homelab
