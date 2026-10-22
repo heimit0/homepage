@@ -5,7 +5,7 @@ description: A Godot game that steps through A*, Dijkstra and DFS one instructio
 ---
 
 For the Algorithms and Data Structures module at HSMW the task was to make
-pathfinding understandable, and most people hand in a writeup. I built a game
+pathfinding understandable, and most people hand in a write-up. I built a game
 instead. It's called Neudinkel (repo: PathfindingSimGame), it's in Godot, and
 the entire premise is that you watch A*, Dijkstra and DFS work through a map one
 instruction at a time rather than just being shown the finished path.
