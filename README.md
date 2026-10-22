@@ -65,6 +65,22 @@ Post body in **Markdown**.
 - The filename (without `.md`) becomes the URL slug — e.g.
   `content/posts/my-post.md` is served at `/blog/my-post`.
 
+## Images in posts
+
+Put images in `public/` (e.g. `public/posts/`) and reference them in Markdown
+with a root-absolute path:
+
+```md
+![Alt text](/posts/my-image.png)
+```
+
+- Vite copies `public/` verbatim into the build, so files are served at `/…`.
+- Only root-absolute paths work — posts are bundled as raw text at build time,
+  so a relative path (`./img.png`) resolves against `/blog/<slug>` and 404s.
+- Images are responsive out of the box via `.prose img` in `src/style.css`.
+- The gallery (`content/gallery/`) is a separate grid at `/gallery` — its
+  images get hashed build URLs and can't be referenced from post Markdown.
+
 ## Gallery
 
 Drop images into [`content/gallery/`](content/gallery/) — they appear
